@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pomodoro Tracker</title>
+  
+  <link rel="stylesheet" href="style.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Ubuntu:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+  
+  <script defer src="script.js"></script>
+</head>
+<body>
+<div class="background">
+  <div class="app__container">
+    <h1><img src="img/tomato.svg" alt="Tomato-icon" class="tomato-icon"> Pomodoro Tracker</h1>
+    
+    <div class="modes-buttons__container">
+      <button id="fastCycle" class="button active">Short (25+5)</button>
+      <button id="mediumCycle" class="button">Medium (45+15)</button>
+    </div>
+    
+    <p id="timer">25:00</p>
+    
+    <div class="progress-bar__container">
+      <h2>Work Session</h2>
+      <p>Cycle 1 of 4</p>
+      <div class="progress-bar">
+        <div class="progress-bar__fill active"></div>
+        <div class="progress-bar__fill"></div>
+        <div class="progress-bar__fill"></div>
+        <div class="progress-bar__fill"></div>
+      </div>
+    </div>
+    
+    <div class="controller__container">
+      <button class="button" id="start">Start</button>
+      <button class="button" id="pause">Pause</button>
+      <button class="button" id="reset">Reset</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

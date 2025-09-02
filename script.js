@@ -1,16 +1,45 @@
-const timer = document.getElementById('timer');
-const cycleText = document.querySelector('.progress-bar__container p');
-const progressBars = document.getElementsByClassName('progress-bar__fill');
+/*
+1. Для консистентности лучше использовать единый подход получения DOM-элементов - querySelector везде
+2. Использовать объекты конфигурации
+3. Разделять функции, одна функция - одна задача
+*/
 
-const fastCycle = document.getElementById('fastCycle');
-const mediumCycle = document.getElementById("mediumCycle");
+const POMODORO_CONFIG = {
+  WORK_TIME: {
+    FAST_WORK_MINUTES: 25,
+    MEDIUM_WORK_MINUTES: 45
+  },
 
-const start = document.getElementById('start');
-const pause = document.getElementById('pause');
-const reset = document.getElementById('reset');
+  BREAK_TIME: {
+    FAST_BREAK_MINUTES: 5,
+    MEDIUM_BREAK_MINUTES: 15
+  },
 
-let totalSeconds = 25 * 60; // текущее время таймера
-let originalSeconds = 25 * 60; // исходное время для сброса
+  TOTAL_CYCLES: 4,
+  UPDATE_INTERVAL_MS: 1
+}
+
+const TIMER_SECONDS = {
+  FAST_WORK: POMODORO_CONFIG.WORK_TIME.FAST_WORK_MINUTES * 60,
+  MEDIUM_WORK: POMODORO_CONFIG.WORK_TIME.MEDIUM_WORK_MINUTES * 60,
+
+  FAST_BREAK: POMODORO_CONFIG.BREAK_TIME.FAST_BREAK_MINUTES * 60,
+  MEDIUM_BREAK: POMODORO_CONFIG.BREAK_TIME.MEDIUM_BREAK_MINUTES * 60,
+}
+
+const timer = document.querySelector('#timer');
+const cycleContainer = document.querySelector('.progress-bar__container p');
+const progressBars = document.querySelectorAll('.progress-bar__fill');
+
+const fastCycle = document.querySelector('#fastCycle');
+const mediumCycle = document.querySelector('#mediumCycle');
+
+const start = document.querySelector('#start');
+const pause = document.querySelector('#pause');
+const reset = document.querySelector('#reset');
+
+let totalSeconds = TIMER_SECONDS.FAST_WORK; // текущее время таймера
+let originalSeconds = TIMER_SECONDS.FAST_WORK; // исходное время для сброса
 let intervalId = null;
 let isRunning = false; // состояние таймера
 let currentCycle = 1; // текущий цикл (1-4)
@@ -24,18 +53,26 @@ const formatTime = (totalSecs) => {
 
 // Обновление прогресс-бара и текста циклов
 function updateProgressBar() {
-  // Очищаем все активные состояния
-  for (let i = 0; i < progressBars.length; i++) {
-    progressBars[i].classList.remove('active');
-  }
+  clearProgressBars()
+  highlightCompletedCycles()
+  updateCycleText();
+}
 
+function clearProgressBars() {
+  // Очищаем все активные состояния
+  Array.from(progressBars).forEach(item => item.classList.remove('active'));
+}
+
+function highlightCompletedCycles() {
   // Подсвечиваем завершенные циклы
-  for (let i = 0; i < currentCycle - 1; i++) {
+  for (let i = 0; i < currentCycle; i++) {
     progressBars[i].classList.add('active');
   }
+}
 
+function updateCycleText() {
   // Обновляем текст
-  cycleText.textContent = `Cycle ${currentCycle} of 4`;
+  cycleContainer.textContent = `Cycle ${currentCycle} of ${POMODORO_CONFIG.TOTAL_CYCLES}`;
 }
 
 // Обновление состояния кнопок
@@ -81,10 +118,15 @@ function switchCycle(selectedCycle) {
   selectedCycle.classList.add("active");
 
   // Устанавливаем время
-  originalSeconds = selectedCycle === mediumCycle ? 45 * 60 : 25 * 60;
+  originalSeconds = selectedCycle === mediumCycle ? TIMER_SECONDS.MEDIUM_WORK : TIMER_SECONDS.FAST_WORK;
   totalSeconds = originalSeconds;
   timer.textContent = formatTime(totalSeconds);
 
+
+  // Сбрасываем циклы на начало
+  currentCycle = 1;
+
+  updateProgressBar();
   updateButtonStates();
 }
 
@@ -96,10 +138,10 @@ function completeCycle() {
   currentCycle += 1;
 
   // Проверяем, не закончились ли все циклы
-  if (currentCycle > 4) {
+  if (currentCycle > POMODORO_CONFIG.TOTAL_CYCLES) {
     // Сброс на первый цикл
     currentCycle = 1;
-    alert('🎉 Поздравляем! Вы завершили полную сессию из 4 циклов!');
+    alert(`🎉 Поздравляем! Вы завершили полную сессию из ${POMODORO_CONFIG.TOTAL_CYCLES} циклов!`);
   } else {
     alert(`🍅 Цикл завершен! Переходим к циклу ${currentCycle}`);
   }
@@ -136,7 +178,7 @@ start.addEventListener('click', function() {
 
       updateButtonStates();
     }
-  }, 1);
+  }, POMODORO_CONFIG.UPDATE_INTERVAL_MS);
 });
 
 // Пауза
@@ -162,13 +204,7 @@ reset.addEventListener('click', function() {
 
   // Сбрасываем циклы на начало
   currentCycle = 1;
+
   updateProgressBar();
-
   updateButtonStates();
-
-  console.log('🔄 Полный сброс: время и циклы сброшены');
 });
-
-// Инициализация
-updateButtonStates();
-updateProgressBar();
